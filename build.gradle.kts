@@ -22,6 +22,7 @@ buildscript {
         val kotlinVersion: String by project
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath("com.android.tools.build:gradle:8.9.3")
+        
     }
 }
 

@@ -91,6 +91,7 @@ open class UncivGame(val isConsoleMode: Boolean = false) : Game(), PlatformSpeci
 
     private val screenStack = ArrayDeque<BaseScreen>()
 
+    
     override fun create() {
         isInitialized = false // this could be on reload, therefore we need to keep setting this to false
         Gdx.input.setCatchKey(Input.Keys.BACK, true)
@@ -104,6 +105,13 @@ open class UncivGame(val isConsoleMode: Boolean = false) : Game(), PlatformSpeci
             val tempFiles = files.getLocalFile("mods").list().filter { !it.isDirectory && it.name().startsWith("temp-") }
             for (file in tempFiles) file.delete()
         }
+        try {
+            com.unciv.discord.DiscordBot.startBot()
+        } catch (e: Exception) {
+            println("Error in the start of the bot : ${e.message}")
+            e.printStackTrace()
+        }   
+        
 
         // If this takes too long players, especially with older phones, get ANR problems.
         // Whatever needs graphics needs to be done on the main thread,
