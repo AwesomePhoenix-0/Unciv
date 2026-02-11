@@ -683,7 +683,7 @@ object UniqueTriggerActivation {
                 if (resource is TileResource && !resource.isStockpiled) return null
 
                 return {
-                    var amountRequired = unique.params[0].toInt()
+                    var amountRequired = unique.params[1].toInt()
                     if (unique.isModifiedByGameSpeed()) {
                         amountRequired = if (resource is Stat) (amountRequired * civInfo.gameInfo.speed.statCostModifiers[resource]!!).roundToInt()
                         else (amountRequired * civInfo.gameInfo.speed.modifier).roundToInt()
@@ -1116,8 +1116,8 @@ object UniqueTriggerActivation {
                     for (applicableCity in applicableCities) {
                         val buildingsToRemove = applicableCity.cityConstructions.getBuiltBuildings().filter {
                             it.matchesFilter(unique.params[0], applicableCity.state)
-                        }.toSet()
-                        applicableCity.cityConstructions.removeBuildings(buildingsToRemove)
+                        }
+                        for (building in buildingsToRemove) applicableCity.cityConstructions.removeBuilding(building)
                     }
                     if (notification != null)
                         civInfo.addNotification(

@@ -655,11 +655,7 @@ class CityConstructions : IsPartOfGameInfoSerialization {
 
     fun removeBuilding(buildingName: String) {
         val buildingObject = city.getRuleset().buildings[buildingName]
-        if (buildingObject != null)
-            builtBuildingObjects = builtBuildingObjects.withoutItem(buildingObject)
-        else builtBuildingObjects.removeAll{ it.name == buildingName }
-        builtBuildings.remove(buildingName)
-        updateUniques()
+        if (buildingObject != null) removeBuilding(buildingObject)
     }
 
     fun removeBuilding(building: Building) {
@@ -668,15 +664,7 @@ class CityConstructions : IsPartOfGameInfoSerialization {
         updateUniques()
     }
 
-    fun removeBuildings(buildings: Set<Building>) {
-        val buildingsToRemove = buildings.map { it.name }.toSet()
-        builtBuildings.removeAll {
-            it in buildingsToRemove
-        }
-        setTransients()
-    }
-
-    fun updateUniques(onLoadGame: Boolean = false) {
+    private fun updateUniques(onLoadGame: Boolean = false) {
         builtBuildingUniqueMap.clear()
         containedBuildingFiltersCache.clear()
 
