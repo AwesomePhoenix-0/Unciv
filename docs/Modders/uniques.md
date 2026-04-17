@@ -128,8 +128,8 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 
 	Applicable to: Triggerable
 
-??? example  "Set [stockpile] to [amount]"
-	Example: "Set [Mana] to [3]"
+??? example  "Set [stockpile] to [countable]"
+	Example: "Set [Mana] to [1000]"
 
 	This unique's effect can be modified with &lt;(modified by game speed)&gt;
 
@@ -1271,7 +1271,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "Cannot be hurried"
 	Applicable to: Tech, Building
@@ -1304,7 +1304,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "[relativeAmount]% weight to this choice for AI decisions"
 	Example: "[+20]% weight to this choice for AI decisions"
@@ -1347,6 +1347,11 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 
 ??? example  "Only available"
 	Meant to be used together with conditionals, like "Only available &lt;after adopting [policy]&gt; &lt;while the empire is happy&gt;". Only allows Building when ALL conditionals are met. Will also block Upgrade and Transform actions. See also CanOnlyBeBuiltWhen
+
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+
+??? example  "Unavailable"
+	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
 	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
@@ -1631,6 +1636,11 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 
 	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
+??? example  "Unavailable"
+	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
+
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+
 ??? example  "Earn [amount]% of [mapUnitFilter] unit's [costOrStrength] as [stockpile] when killed within 4 tiles of a city following this religion"
 	Example: "Earn [3]% of [Wounded] unit's [Cost] as [Mana] when killed within 4 tiles of a city following this religion"
 
@@ -1706,7 +1716,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "Excess Food converted to Production when under construction"
 	Applicable to: Building, Unit
@@ -1813,6 +1823,8 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 	When choosing to construct this building, the player must select a tile where the improvement can be built. Upon building completion, the tile will gain this improvement. Limited to one per building.
 
 	Example: "Creates a [Trading Post] improvement on a specific tile"
+
+	This unique does not support conditionals.
 
 	Applicable to: Building
 
@@ -1966,7 +1978,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "Excess Food converted to Production when under construction"
 	Applicable to: Building, Unit
@@ -2512,7 +2524,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "Not shown on world screen"
 	This unique is automatically hidden from users.
@@ -2617,6 +2629,8 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 	Example: "Units ending their turn on this terrain take [3] damage"
 
 	Due to performance considerations, this unique is cached, thus conditionals that may change within a turn may not work.
+
+	This unique does not support conditionals.
 
 	Applicable to: Terrain
 
@@ -2772,6 +2786,9 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Rough terrain"
 	Applicable to: Terrain
 
+??? example  "Coastal Water"
+	Applicable to: Terrain
+
 ??? example  "Excluded from map editor"
 	This unique is automatically hidden from users.
 
@@ -2838,7 +2855,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "Must be next to [tileFilter]"
 	Example: "Must be next to [Farm]"
@@ -2905,8 +2922,8 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Can only be built to improve a resource"
 	Applicable to: Improvement
 
-??? example  "Does not need removal of [tileFilter]"
-	Example: "Does not need removal of [Farm]"
+??? example  "Does not need removal of [terrainFeature]"
+	Example: "Does not need removal of [Hill]"
 
 	Applicable to: Improvement
 
@@ -3132,7 +3149,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "Free [unit] found in the ruins"
 	Example: "Free [Musketman] found in the ruins"
@@ -3320,7 +3337,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ## EventChoice uniques
 ??? example  "Only available"
@@ -3331,7 +3348,7 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "Unavailable"
 	Meant to be used together with conditionals, like "Unavailable &lt;after generating a Great Prophet&gt;".
 
-	Applicable to: Tech, Policy, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
+	Applicable to: Tech, Policy, FounderBelief, FollowerBelief, Building, Unit, Promotion, Improvement, Ruins, Event, EventChoice
 
 ??? example  "[relativeAmount]% weight to this choice for AI decisions"
 	Example: "[+20]% weight to this choice for AI decisions"
@@ -3740,6 +3757,16 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 
 	Applicable to: Conditional
 
+??? example  "&lt;when below [positiveAmount] movement&gt;"
+	Example: "&lt;when below [3] movement&gt;"
+
+	Applicable to: Conditional
+
+??? example  "&lt;when above [positiveAmount] movement&gt;"
+	Example: "&lt;when above [3] movement&gt;"
+
+	Applicable to: Conditional
+
 ??? example  "&lt;if it hasn't used other actions yet&gt;"
 	Applicable to: Conditional
 
@@ -3873,6 +3900,11 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 
 ??? example  "&lt;upon entering a war with [civFilter] Civilizations&gt;"
 	Example: "&lt;upon entering a war with [City-States] Civilizations&gt;"
+
+	Applicable to: TriggerCondition
+
+??? example  "&lt;upon signing a peace treaty with [civFilter] Civilizations&gt;"
+	Example: "&lt;upon signing a peace treaty with [City-States] Civilizations&gt;"
 
 	Applicable to: TriggerCondition
 
@@ -4084,6 +4116,15 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 ??? example  "&lt;after which this unit is consumed&gt;"
 	Applicable to: UnitActionModifier
 
+??? example  "&lt;with [amount] priority&gt;"
+	How often this action is used, a higher value means more often and that it should be on an earlier page. 100 is very frequent, 50 is somewhat frequent, less than 25 is press one time for multi-turn movement. A Rare case is &gt; 100 if a button is something like add in capital, promote or something, we need to inform the player that taking the action is an option.
+
+	Example: "&lt;with [3] priority&gt;"
+
+	This unique is automatically hidden from users.
+
+	Applicable to: UnitActionModifier, MetaModifier
+
 ## MetaModifier uniques
 !!! note ""
 
@@ -4095,6 +4136,15 @@ Simple unique parameters are explained by mouseover. Complex parameters are expl
 	Example: "&lt;for [3] turns&gt;"
 
 	Applicable to: MetaModifier
+
+??? example  "&lt;with [amount] priority&gt;"
+	How often this action is used, a higher value means more often and that it should be on an earlier page. 100 is very frequent, 50 is somewhat frequent, less than 25 is press one time for multi-turn movement. A Rare case is &gt; 100 if a button is something like add in capital, promote or something, we need to inform the player that taking the action is an option.
+
+	Example: "&lt;with [3] priority&gt;"
+
+	This unique is automatically hidden from users.
+
+	Applicable to: UnitActionModifier, MetaModifier
 
 ??? example  "&lt;hidden from users&gt;"
 	Applicable to: MetaModifier

@@ -8,6 +8,7 @@ import com.unciv.logic.civilization.AlertType
 import com.unciv.logic.civilization.Civilization
 import com.unciv.logic.civilization.PopupAlert
 import com.unciv.logic.civilization.diplomacy.DiplomacyFlags
+import com.unciv.logic.civilization.diplomacy.DiplomacyManager
 import com.unciv.logic.civilization.diplomacy.DiplomaticModifiers
 import com.unciv.logic.civilization.diplomacy.DiplomaticStatus
 import com.unciv.logic.civilization.diplomacy.RelationshipLevel
@@ -19,8 +20,13 @@ import com.unciv.logic.trade.TradeOfferType
 import com.unciv.models.ruleset.nation.PersonalityValue
 import com.unciv.models.ruleset.unique.UniqueType
 import com.unciv.ui.screens.victoryscreen.RankingType
+import com.unciv.utils.Log
+import com.unciv.utils.hashOf
 import yairm210.purity.annotations.Readonly
 import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 object DiplomacyAutomation {
@@ -34,11 +40,18 @@ object DiplomacyAutomation {
             .sortedByDescending { it.getDiplomacyManager(civInfo)!!.relationshipLevel() }.toList()
         for (otherCiv in civsThatWeCanDeclareFriendshipWith) {
             // Default setting is 2, this will be changed according to different civ.
-            if ((1..10).random() <= 2 * civInfo.getPersonality().scaledFocus(PersonalityValue.Diplomacy) 
+            if ((1..10).random(getRandom(civInfo, otherCiv, "declaration of friendship"))
+                <= 2 * civInfo.getPersonality().scaledFocus(PersonalityValue.Diplomacy) 
                 && wantsToSignDeclarationOfFrienship(civInfo, otherCiv)) {
                 otherCiv.popupAlerts.add(PopupAlert(AlertType.DeclarationOfFriendship, civInfo.civID))
             }
         }
+    }
+    
+    @Readonly
+    fun getRandom(civInfo: Civilization, otherCiv: Civilization, context: String): Random {
+        val seed = hashOf(context.hashCode(), civInfo.civID.hashCode(), otherCiv.civID.hashCode(), civInfo.gameInfo.turns)
+        return Random(seed)
     }
 
     @Readonly
@@ -125,7 +138,7 @@ object DiplomacyAutomation {
 
         for (otherCiv in civsThatWeCanEstablishEmbassyWith) {
             // Default setting is 3
-            if ((1..10).random() < 7) continue
+            if ((1..10).random(getRandom(civInfo, otherCiv, "embassy")) < 7) continue
             if (wantsToAcceptEmbassy(civInfo, otherCiv)) {
                 val tradeLogic = TradeLogic(civInfo, otherCiv)
                 val embassyOffer = TradeOffer(Constants.acceptEmbassy, TradeOfferType.Embassy, speed = civInfo.gameInfo.speed)
@@ -172,7 +185,7 @@ object DiplomacyAutomation {
 
         for (otherCiv in civsThatWeCanOpenBordersWith) {
             // Default setting is 3
-            if ((1..10).random() < 7) continue
+            if ((1..10).random(getRandom(civInfo, otherCiv, "open borders")) < 7) continue
             if (wantsToOpenBorders(civInfo, otherCiv)) {
                 val tradeLogic = TradeLogic(civInfo, otherCiv)
                 tradeLogic.currentTrade.ourOffers.add(TradeOffer(Constants.openBorders, TradeOfferType.Agreement, speed = civInfo.gameInfo.speed))
@@ -242,7 +255,8 @@ object DiplomacyAutomation {
 
         for (otherCiv in civsThatWeCanSignResearchAgreementWith) {
             // Default setting is 5, this will be changed according to different civ.
-            if ((1..10).random() <= 5 * civInfo.getPersonality().scaledFocus(PersonalityValue.Science)) continue
+            if ((1..10).random(getRandom(civInfo, otherCiv, "research agreement"))
+                <= 5 * civInfo.getPersonality().scaledFocus(PersonalityValue.Science)) continue
             val tradeLogic = TradeLogic(civInfo, otherCiv)
             val cost = civInfo.diplomacyFunctions.getResearchAgreementCost(otherCiv)
             val tradeOffer = TradeOffer(Constants.researchAgreement, TradeOfferType.Treaty, cost, civInfo.gameInfo.speed)
@@ -266,7 +280,8 @@ object DiplomacyAutomation {
 
         for (otherCiv in civsThatWeCanSignDefensivePactWith) {
             // Default setting is 3, this will be changed according to different civ.
-            if ((1..10).random() <= 7 * civInfo.getPersonality().inverseScaledFocus(PersonalityValue.Loyal)) continue
+            if ((1..10).random(getRandom(civInfo, otherCiv, "defensive pact"))
+                <= 7 * civInfo.getPersonality().inverseScaledFocus(PersonalityValue.Loyal)) continue
             if (wantsToSignDefensivePact(civInfo, otherCiv)) {
                 //todo: Add more in depth evaluation here
                 val tradeLogic = TradeLogic(civInfo, otherCiv)
@@ -460,5 +475,83 @@ object DiplomacyAutomation {
         return otherCiv.tradeRequests.filter { request -> request.requestingCiv == civInfo.civID }
             .any { trade -> trade.trade.ourOffers.any { offer -> offer.name == offerName }
                     || trade.trade.theirOffers.any { offer -> offer.name == offerName } }
+    }
+
+    /**
+     * If opinion of the other civ drops by this amount or more
+     */
+    const val DENOUNCE_REQUIRED_OPINION_CHANGE_INITIAL = -68f
+    const val DENOUNCE_REQUIRED_OPINION_CHANGE_BASE = 1.005f
+
+    /**
+     * Check if [civInfo] has become frustrated with other civs. If so, denounce those civs.
+     */
+    internal fun denounce(
+        civInfo: Civilization
+    ) {
+        /**
+         * This is not an official formula - modify or replace as needed.
+         *
+         * Whether to denounce is determined by how rapidly opinion has declined, the current relationship level, and personality traits.
+         *
+         * With the current formula, the AI will denounce if opinion drops rapidly from:
+         * ```
+         * 135 to 50
+         * 65 to 0
+         * 0 to -50
+         * -60 to -100
+         * ```
+         * Adjust with [DiplomacyManager.EMA_PERIOD], [DENOUNCE_REQUIRED_OPINION_CHANGE_INITIAL] and [DENOUNCE_REQUIRED_OPINION_CHANGE_BASE]
+         */
+        fun requiredOpinionChange(
+            diplomacy: DiplomacyManager
+        ): Float {
+            val personality = diplomacy.civInfo.getPersonality()
+            if (personality.denounceWillingness == 0f)
+                return Float.NEGATIVE_INFINITY
+            val willingnessModifier = 1f / personality.scaledFocus(PersonalityValue.DenounceWillingness)
+            val opinionModifier = DENOUNCE_REQUIRED_OPINION_CHANGE_BASE.pow(diplomacy.opinionOfOtherCiv())
+            return DENOUNCE_REQUIRED_OPINION_CHANGE_INITIAL * willingnessModifier * opinionModifier
+        }
+
+        // debugging: records every civ's opinion of every other civ
+        Log.debug(civInfo.civName)
+        fun debug(diplomacy: DiplomacyManager) {
+            Log.debug(
+                "-> %s: %.1f (%.1f), %.1f / %.1f",
+                diplomacy.otherCivName,
+                { diplomacy.opinionOfOtherCiv() },
+                { diplomacy.smoothedOpinionOfOtherCiv },
+                { diplomacy.smoothedOpinionDelta() },
+                { requiredOpinionChange(diplomacy) }
+            )
+        }
+
+        // limit how many civs we can denounce similtaneously
+        // TODO: replace hard cap with logic where number of active denunciations affects the opinion change required to denounce more civs
+        // max = square root of number of alive known major civs, rounded up
+        val maxActiveDenunciations = ceil(sqrt(civInfo.getKnownCivs().filter { it.isMajorCiv() }.count().toFloat()))
+
+        var activeDenunciations = civInfo.diplomacy.values.count { it.hasFlag(DiplomacyFlags.Denunciation) }
+        
+        val ourRelationships = civInfo.diplomacy.values.asSequence()
+            .filter { it.otherCiv.isMajorCiv() }
+            .onEach { debug(it) }
+            .filter { it.diplomaticStatus != DiplomaticStatus.War
+                    && !it.hasFlag(DiplomacyFlags.DeclarationOfFriendship)
+                    && !it.hasFlag(DiplomacyFlags.Denunciation) }
+        
+        for (relationship in ourRelationships) {
+            if (activeDenunciations >= maxActiveDenunciations)
+                break
+            // TODO: consider consequences of denouncing others
+            // compare our current opinion with the smoothed opinion
+            val opinionChange = relationship.smoothedOpinionDelta()
+            // denounce if opinion dropped too quickly
+            if (opinionChange <= requiredOpinionChange(relationship)) {
+                relationship.denounce()
+                activeDenunciations++
+            }
+        }
     }
 }

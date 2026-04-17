@@ -395,7 +395,9 @@ object Automation {
     @Readonly
     private fun improvementIsRemovable(city: City, tile: Tile): Boolean {
         val gameContext = GameContext(city.civ, city, tile = tile)
-        return (tile.getTileImprovement()?.hasUnique(UniqueType.AutomatedUnitsWillNotReplace, gameContext) == false  && tile.getTileImprovement()?.hasUnique(UniqueType.Irremovable, gameContext) == false)
+        val improvement = tile.tileImprovement ?: return false
+        return !improvement.hasUnique(UniqueType.AutomatedUnitsWillNotReplace, gameContext) &&
+            !improvement.hasUnique(UniqueType.Irremovable, gameContext)
     }
 
     /** Support [UniqueType.CreatesOneImprovement] unique - find best tile for placement automation */
@@ -404,7 +406,7 @@ object Automation {
         val localUniqueCache = LocalUniqueCache()
         val civ = city.civ
         return city.getTiles().filter {
-            (it.getTileImprovement() == null || improvementIsRemovable(city, it))
+            (it.tileImprovement == null || improvementIsRemovable(city, it))
                 && it.improvementFunctions.canBuildImprovement(improvement, city.state)
         }.maxByOrNull { 
             // Needs to take into account future improvement layouts, and better placement of citadel-like improvements
@@ -469,19 +471,27 @@ object Automation {
 
         // Check if we get access to better tiles from this tile
         var adjacentNaturalWonder = false
+        var isContested = false
 
-        for (adjacentTile in tile.neighbors.filter { it.getOwner() == null }) {
+        for (adjacentTile in tile.neighbors.filter { city.civ.hasExplored(it) && it.getOwner() != city.civ  }) {
+            // the neighbor tile is owned by another civ
+            if (adjacentTile.getOwner() != null) {
+                isContested = true
+                continue
+            }
+            // the neighbor tile is not owned by anyone
             val adjacentDistance = city.getCenterTile().aerialDistanceTo(adjacentTile)
             val adjacentResource = adjacentTile.tileResource
             if (city.civ.canSeeResource(adjacentResource) &&
-                (adjacentDistance < city.getWorkRange() || adjacentResource.resourceType != ResourceType.Bonus)
+                (adjacentDistance <= city.getWorkRange() || adjacentResource.resourceType != ResourceType.Bonus)
             ) score -= 1
             if (adjacentTile.naturalWonder != null) {
-                if (adjacentDistance < city.getWorkRange()) adjacentNaturalWonder = true
+                if (adjacentDistance <= city.getWorkRange()) adjacentNaturalWonder = true
                 score -= 1
             }
         }
         if (adjacentNaturalWonder) score -= 1
+        if (isContested) score -= 1
 
         // Tiles not adjacent to owned land are very hard to acquire
         if (tile.neighbors.none { it.getCity() != null && it.getCity()!!.id == city.id })
